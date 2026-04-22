@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HappyShop – Premium Vegan Skincare</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Cormorant Garamond (display) + DM Sans (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <script>
+    /* ─── Tailwind custom config ─── */
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold:     '#D4AF37',
+            'gold-l': '#E8CC6A',
+            'gold-d': '#A88A20',
+            cream:    '#FDFAF4',
+            charcoal: '#1A1A1A',
+          },
+          fontFamily: {
+            display: ['"Cormorant Garamond"', 'serif'],
+            body:    ['"DM Sans"', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* ─── Global reset & base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #FFFFFF;
+      color: #1A1A1A;
+      overflow-x: hidden;
+    }
+
+    /* ─── Gold gradient utility ─── */
+    .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #E8CC6A 50%, #A88A20 100%); }
+    .gold-text { background: linear-gradient(135deg, #D4AF37, #A88A20); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    /* ─── Header ─── */
+    #main-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      transition: background .35s, box-shadow .35s, padding .35s;
+    }
+    #main-header.scrolled {
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 1px 24px rgba(212,175,55,.15);
+    }
+
+    /* ─── Hero Slider ─── */
+    .slide { display: none; animation: fadeIn .8s ease; }
+    .slide.active { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ─── Slider dots ─── */
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.5); cursor: pointer; transition: all .3s; }
+    .dot.active { background: #D4AF37; width: 24px; border-radius: 4px; }
+
+    /* ─── Product card ─── */
+    .product-card { transition: transform .4s cubic-bezier(.23,1,.32,1), box-shadow .4s; }
+    .product-card:hover { transform: translateY(-8px); box-shadow: 0 24px 48px rgba(212,175,55,.18); }
+    .product-card .overlay { opacity: 0; transition: opacity .35s; }
+    .product-card:hover .overlay { opacity: 1; }
+    .product-card img { transition: transform .6s cubic-bezier(.23,1,.32,1); }
+    .product-card:hover img { transform: scale(1.06); }
+
+    /* ─── Cart sidebar ─── */
+    #cart-sidebar {
+      position: fixed; top: 0; right: -420px; width: 420px; height: 100vh;
+      background: #fff; z-index: 2000;
+      box-shadow: -8px 0 40px rgba(0,0,0,.12);
+      transition: right .45s cubic-bezier(.23,1,.32,1);
+      display: flex; flex-direction: column;
+    }
+    #cart-sidebar.open { right: 0; }
+    #cart-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.35);
+      z-index: 1999; opacity: 0; pointer-events: none;
+      transition: opacity .4s;
+    }
+    #cart-overlay.show { opacity: 1; pointer-events: all; }
+
+    /* ─── Checkout modal ─── */
+    #checkout-modal {
+      position: fixed; inset: 0; z-index: 3000;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(0,0,0,.5); backdrop-filter: blur(4px);
+    }
+    #checkout-modal.open { display: flex; }
+    .checkout-box {
+      background: #fff;
+      border-radius: 20px;
+      max-width: 680px; width: 94%; max-height: 90vh;
+      overflow-y: auto; padding: 40px;
+      animation: slideUp .4s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* ─── Payment method selector ─── */
+    .pay-option { border: 2px solid #e5e5e5; border-radius: 12px; cursor: pointer; transition: border-color .25s, background .25s; }
+    .pay-option.selected { border-color: #D4AF37; background: #FDFAF4; }
+
+    /* ─── Lang toggle ─── */
+    .lang-btn { font-size: .75rem; font-weight: 600; letter-spacing: .08em; padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: background .2s, color .2s; }
+    .lang-btn.active { background: #D4AF37; color: #fff; }
+    .lang-btn:not(.active) { color: #888; }
+
+    /* ─── Nav link underline animation ─── */
+    .nav-link { position: relative; }
+    .nav-link::after { content: ''; position: absolute; left: 0; bottom: -2px; width: 0; height: 1px; background: #D4AF37; transition: width .3s; }
+    .nav-link:hover::after { width: 100%; }
+
+    /* ─── Section divider ─── */
+    .gold-line { width: 48px; height: 2px; background: linear-gradient(90deg, #D4AF37, #E8CC6A); display: block; }
+
+    /* ─── Toast ─── */
+    #toast {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(60px);
+      background: #1A1A1A; color: #fff; padding: 12px 28px; border-radius: 999px;
+      font-size: .85rem; z-index: 9999; transition: transform .4s cubic-bezier(.23,1,.32,1), opacity .4s;
+      opacity: 0; pointer-events: none; white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    #toast .accent { color: #D4AF37; }
+
+    /* ─── Mobile menu ─── */
+    #mobile-menu { max-height: 0; overflow: hidden; transition: max-height .45s cubic-bezier(.23,1,.32,1); }
+    #mobile-menu.open { max-height: 400px; }
+
+    /* ─── Responsive cart sidebar ─── */
+    @media (max-width: 480px) {
+      #cart-sidebar { width: 100%; right: -100%; }
+      #cart-sidebar.open { right: 0; }
+      .checkout-box { padding: 24px 20px; }
+    }
+
+    /* ─── Brand story section ─── */
+    .story-img-frame {
+      position: relative;
+    }
+    .story-img-frame::before {
+      content: '';
+      position: absolute;
+      inset: -12px -12px 12px 12px;
+      border: 1px solid #D4AF37;
+      border-radius: 4px;
+      z-index: 0;
+    }
+
+    /* ─── Scrollbar ─── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 99px; }
+
+    /* ─── Input focus style ─── */
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #D4AF37 !important;
+      box-shadow: 0 0 0 3px rgba(212,175,55,.15);
+    }
+
+    /* ─── Animated gold shimmer on btn ─── */
+    .btn-gold {
+      position: relative; overflow: hidden;
+      background: linear-gradient(135deg, #D4AF37 0%, #E8CC6A 50%, #A88A20 100%);
+    }
+    .btn-gold::after {
+      content: '';
+      position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
+      animation: shimmer 2.5s infinite;
+    }
+    @keyframes shimmer { to { left: 160%; } }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════ -->
+<header id="main-header" class="py-5 px-6 lg:px-12">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+
+    <!-- Logo -->
+    <a href="#" class="flex items-center gap-3 flex-shrink-0">
+      <img src="logo.png" alt="HappyShop Logo" class="h-10 w-auto object-contain"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+      <!-- Fallback text logo if image missing -->
+      <div style="display:none;" class="flex items-center gap-2">
+        <div class="w-9 h-9 gold-gradient rounded-lg flex items-center justify-center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6" stroke="white" stroke-width="1.5"/><path d="M16 10a4 4 0 01-8 0" fill="none" stroke="white" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <span class="font-display text-2xl font-semibold tracking-wide text-charcoal">HappyShop</span>
+      </div>
+    </a>
+
+    <!-- Desktop nav -->
+    <nav class="hidden md:flex items-center gap-8">
+      <a href="#" class="nav-link font-body text-sm font-medium text-charcoal tracking-wide" data-vi="Trang Chủ" data-en="Home">Trang Chủ</a>
+      <a href="#products" class="nav-link font-body text-sm font-medium text-charcoal tracking-wide" data-vi="Sản Phẩm" data-en="Products">Sản Phẩm</a>
+      <a href="#story" class="nav-link font-body text-sm font-medium text-charcoal tracking-wide" data-vi="Thương Hiệu" data-en="Our Story">Thương Hiệu</a>
+    </nav>
+
+    <!-- Right controls -->
+    <div class="flex items-center gap-4">
+      <!-- Lang toggle -->
+      <div class="flex items-center gap-1 border border-gray-200 rounded-md p-0.5">
+        <button class="lang-btn active" onclick="setLang('vi')" id="btn-vi">VI</button>
+        <button class="lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
+      </div>
+
+      <!-- Cart icon -->
+      <button onclick="openCart()" class="relative p-2 hover:bg-gray-50 rounded-lg transition-colors" aria-label="Cart">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        <span id="cart-count" class="absolute -top-1 -right-1 w-5 h-5 gold-gradient text-white text-xs rounded-full flex items-center justify-center font-semibold" style="display:none">0</span>
+      </button>
+
+      <!-- Mobile hamburger -->
+      <button id="hamburger" onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-lg hover:bg-gray-50 transition-colors" aria-label="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 mt-4">
+    <div class="py-4 px-6 flex flex-col gap-4">
+      <a href="#" class="font-body text-sm font-medium text-charcoal" data-vi="Trang Chủ" data-en="Home">Trang Chủ</a>
+      <a href="#products" class="font-body text-sm font-medium text-charcoal" onclick="toggleMobileMenu()" data-vi="Sản Phẩm" data-en="Products">Sản Phẩm</a>
+      <a href="#story" class="font-body text-sm font-medium text-charcoal" onclick="toggleMobileMenu()" data-vi="Thương Hiệu" data-en="Our Story">Thương Hiệu</a>
+    </div>
+  </div>
+</header>
+
+
+<!-- ══════════════════════════════════════════
+     HERO SLIDER
+══════════════════════════════════════════ -->
+<section id="hero" class="pt-20 min-h-screen bg-cream relative overflow-hidden">
+
+  <!-- Real d'Alba lifestyle background (subtle) -->
+  <div class="absolute inset-0 pointer-events-none"
+       style="background-image: url('https://dalba.com/cdn/shop/files/PC31221_368402b7-5cc7-4985-a948-95bce3ebc3e0_800x.png?v=1754542865'); background-size: cover; background-position: center right; opacity: 0.06;">
+  </div>
+
+  <!-- Decorative background circles -->
+  <div class="absolute top-1/2 right-0 w-96 h-96 rounded-full opacity-10 gold-gradient blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+  <div class="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-8 gold-gradient blur-3xl translate-y-1/3 -translate-x-1/3 pointer-events-none"></div>
+
+  <!-- Slide 1 -->
+  <div class="slide active min-h-screen items-center px-6 lg:px-20 max-w-7xl mx-auto">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-20">
+      <div class="order-2 lg:order-1">
+        <p class="font-body text-xs font-semibold tracking-[.25em] uppercase text-gold mb-4" data-vi="Bestseller · Mỹ phẩm thuần chay" data-en="Bestseller · Premium Vegan Skincare">Bestseller · Mỹ phẩm thuần chay</p>
+        <h1 class="font-display text-5xl lg:text-7xl font-light text-charcoal leading-tight mb-6">
+          <span data-vi="Xịt Serum" data-en="Spray Serum">Xịt Serum</span><br/>
+          <em class="gold-text font-normal" data-vi="White Truffle" data-en="White Truffle">White Truffle</em>
+        </h1>
+        <span class="gold-line mb-6 block"></span>
+        <p class="font-body text-base text-gray-500 leading-relaxed mb-8 max-w-md"
+           data-vi="Công thức 4-in-1 kết hợp toner, essence, serum và lớp khóa nền. Chiết xuất nấm Truffle trắng quý hiếm từ vùng Piedmont, Ý — dưỡng ẩm tức thì, căng bóng rạng ngời."
+           data-en="4-in-1 formula combining toner, essence, serum and makeup fixer. Rare white truffle extract from Piedmont, Italy — instant hydration, luminous glow.">
+          Công thức 4-in-1 kết hợp toner, essence, serum và lớp khóa nền. Chiết xuất nấm Truffle trắng quý hiếm từ vùng Piedmont, Ý — dưỡng ẩm tức thì, căng bóng rạng ngời.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a href="#products" class="btn-gold text-white px-8 py-3.5 rounded-full font-body font-medium text-sm tracking-wide transition-transform hover:scale-105"
+             data-vi="Khám Phá Ngay" data-en="Shop Now">Khám Phá Ngay</a>
+          <a href="#story" class="px-8 py-3.5 rounded-full font-body font-medium text-sm tracking-wide border-2 border-gray-200 text-charcoal hover:border-gold hover:text-gold transition-all"
+             data-vi="Câu Chuyện Thương Hiệu" data-en="Our Story">Câu Chuyện Thương Hiệu</a>
+        </div>
+      </div>
+      <div class="order-1 lg:order-2 flex justify-center">
+        <div class="relative">
+          <div class="absolute inset-0 gold-gradient opacity-10 rounded-full blur-3xl scale-110"></div>
+          <img src="https://dalba.com/cdn/shop/files/100ml_18802f44-6c65-4476-af0b-7a8e86a25e8c_800x.png?v=1754542865" alt="White Truffle First Spray Serum"
+               class="relative w-72 lg:w-96 h-auto object-contain drop-shadow-2xl" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 2 -->
+  <div class="slide min-h-screen items-center px-6 lg:px-20 max-w-7xl mx-auto">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-20">
+      <div class="order-2 lg:order-1">
+        <p class="font-body text-xs font-semibold tracking-[.25em] uppercase text-gold mb-4" data-vi="Mới Ra Mắt · SPF 50+" data-en="New Arrival · SPF 50+">Mới Ra Mắt · SPF 50+</p>
+        <h1 class="font-display text-5xl lg:text-7xl font-light text-charcoal leading-tight mb-6">
+          <span data-vi="Kem Chống Nắng" data-en="Tone-up">Kem Chống Nắng</span><br/>
+          <em class="gold-text font-normal" data-vi="Nâng Tông Tím" data-en="Sunscreen">Nâng Tông Tím</em>
+        </h1>
+        <span class="gold-line mb-6 block"></span>
+        <p class="font-body text-base text-gray-500 leading-relaxed mb-8 max-w-md"
+           data-vi="Bảo vệ tối ưu SPF50+ PA++++, nâng tông da tức thì với hiệu ứng ánh tím tinh tế. Chứa nấm Truffle trắng & Niacinamide dưỡng trắng rạng ngời."
+           data-en="Maximum SPF50+ PA++++ protection with instant tone-up effect and subtle pink-violet glow. Infused with white truffle & Niacinamide for radiant skin.">
+          Bảo vệ tối ưu SPF50+ PA++++, nâng tông da tức thì với hiệu ứng ánh tím tinh tế. Chứa nấm Truffle trắng & Niacinamide dưỡng trắng rạng ngời.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a href="#products" class="btn-gold text-white px-8 py-3.5 rounded-full font-body font-medium text-sm tracking-wide transition-transform hover:scale-105"
+             data-vi="Mua Ngay" data-en="Shop Now">Mua Ngay</a>
+        </div>
+      </div>
+      <div class="order-1 lg:order-2 flex justify-center">
+        <div class="relative">
+          <div class="absolute inset-0 gold-gradient opacity-10 rounded-full blur-3xl scale-110"></div>
+          <img src="https://dalba.com/cdn/shop/files/b15aef97dfabe02b4154cfc2d8893c1e_800x.png?v=1754541931" alt="Waterfull Tone-up Sunscreen"
+               class="relative w-72 lg:w-96 h-auto object-contain drop-shadow-2xl" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3 -->
+  <div class="slide min-h-screen items-center px-6 lg:px-20 max-w-7xl mx-auto">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-20">
+      <div class="order-2 lg:order-1">
+        <p class="font-body text-xs font-semibold tracking-[.25em] uppercase text-gold mb-4" data-vi="Bộ Sưu Tập Mùa Đông" data-en="Winter Collection">Bộ Sưu Tập Mùa Đông</p>
+        <h1 class="font-display text-5xl lg:text-7xl font-light text-charcoal leading-tight mb-6">
+          <span data-vi="Double Serum" data-en="Double Serum">Double Serum</span><br/>
+          <em class="gold-text font-normal" data-vi="& Kem Dưỡng" data-en="& Cream">& Kem Dưỡng</em>
+        </h1>
+        <span class="gold-line mb-6 block"></span>
+        <p class="font-body text-base text-gray-500 leading-relaxed mb-8 max-w-md"
+           data-vi="Giải pháp DIY tùy biến theo tình trạng da. Kết hợp serum & kem trong một bước, nuôi dưỡng sâu và phục hồi làn da mệt mỏi sau một ngày dài."
+           data-en="Customizable DIY skincare solution combining serum & cream in one step. Deep nourishment to revive tired, dull skin.">
+          Giải pháp DIY tùy biến theo tình trạng da. Kết hợp serum & kem trong một bước, nuôi dưỡng sâu và phục hồi làn da mệt mỏi sau một ngày dài.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a href="#products" class="btn-gold text-white px-8 py-3.5 rounded-full font-body font-medium text-sm tracking-wide transition-transform hover:scale-105"
+             data-vi="Khám Phá" data-en="Explore">Khám Phá</a>
+        </div>
+      </div>
+      <div class="order-1 lg:order-2 flex justify-center">
+        <div class="relative">
+          <div class="absolute inset-0 gold-gradient opacity-10 rounded-full blur-3xl scale-110"></div>
+          <img src="https://dalba.com/cdn/shop/files/ver_800x.png?v=1756100655" alt="Double Serum & Cream"
+               class="relative w-72 lg:w-96 h-auto object-contain drop-shadow-2xl rounded-2xl" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slider controls -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-6">
+    <button onclick="prevSlide()" class="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:border-gold hover:text-gold transition-colors">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="flex gap-2 items-center" id="dots">
+      <div class="dot active" onclick="goToSlide(0)"></div>
+      <div class="dot" onclick="goToSlide(1)"></div>
+      <div class="dot" onclick="goToSlide(2)"></div>
+    </div>
+    <button onclick="nextSlide()" class="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:border-gold hover:text-gold transition-colors">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FEATURE BADGES
+══════════════════════════════════════════ -->
+<section class="py-10 bg-white border-y border-gray-100">
+  <div class="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+    <div class="flex flex-col items-center gap-2">
+      <div class="w-12 h-12 rounded-full bg-cream flex items-center justify-center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="1.6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <p class="font-body text-xs font-semibold uppercase tracking-widest text-gold" data-vi="100% Thuần Chay" data-en="100% Vegan">100% Thuần Chay</p>
+      <p class="font-body text-xs text-gray-400" data-vi="Chứng nhận EVU" data-en="EVU Certified">Chứng nhận EVU</p>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <div class="w-12 h-12 rounded-full bg-cream flex items-center justify-center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <p class="font-body text-xs font-semibold uppercase tracking-widest text-gold" data-vi="Miễn Phí Vận Chuyển" data-en="Free Shipping">Miễn Phí Vận Chuyển</p>
+      <p class="font-body text-xs text-gray-400" data-vi="Đơn hàng trên 599K" data-en="Orders over 599K VND">Đơn hàng trên 599K</p>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <div class="w-12 h-12 rounded-full bg-cream flex items-center justify-center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="1.6"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+      </div>
+      <p class="font-body text-xs font-semibold uppercase tracking-widest text-gold" data-vi="Quà Tặng Sang Trọng" data-en="Luxury Gift Wrap">Quà Tặng Sang Trọng</p>
+      <p class="font-body text-xs text-gray-400" data-vi="Cho mọi đơn hàng" data-en="For every order">Cho mọi đơn hàng</p>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <div class="w-12 h-12 rounded-full bg-cream flex items-center justify-center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="1.6"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+      </div>
+      <p class="font-body text-xs font-semibold uppercase tracking-widest text-gold" data-vi="Đổi Trả Dễ Dàng" data-en="Easy Returns">Đổi Trả Dễ Dàng</p>
+      <p class="font-body text-xs text-gray-400" data-vi="30 ngày hoàn tiền" data-en="30-day money back">30 ngày hoàn tiền</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     MARQUEE PRODUCT STRIP
+══════════════════════════════════════════ -->
+<div class="overflow-hidden bg-cream py-10 border-b border-gray-100">
+  <div class="marquee-track flex gap-8 items-center" style="animation: marquee 28s linear infinite; width: max-content;">
+    <!-- Repeated set 1 -->
+    <img src="https://dalba.com/cdn/shop/files/100ml_18802f44-6c65-4476-af0b-7a8e86a25e8c_800x.png?v=1754542865"  alt="Serum" class="h-28 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
+    <img src="https://dalba.com/cdn/shop/files/b15aef97dfabe02b4154cfc2d8893c1e_800x.png?v=1754541931"           alt="Sunscreen Toneup" class="h-28 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
+    <img src="https://dalba.com/cdn/shop/files/ver_800x.png?v=1756100655"                                        alt="Double Cream" class="h-28 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
+    <img src="https://dalba.com/cdn/shop/files/3fc5273f019a4a544f8624c267860fc7_800x.png?v=1754541907"           alt="Essence Sunscreen" class="h-28 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
+    <img src="https://dalba.com/cdn/shop/files/d56f6b409060c03edce3fedffb876f03_7291c156-b3bb-4689-ae38-8131a7322ad4_800x.jpg?v=1754542865" alt="Aromatic" class="h-28 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
+    <img src="https://dalba.com/cdn/shop/files/doublecream-thumbnail-1_800x.jpg?v=1756100655"                    alt="Double Cream 2" class="h-28 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
+    <!-- Repeated set 2 (seamless loop) -->
+    <img src="https://dalba.com/cdn/shop/files/100ml_18802f44-6c65-4476-af0b-7a8e86a25e8c_800x.png?v=1754542865"  alt="Serum" class="h-28 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
+    <img src="https://dalba.com/cdn/shop/files/b15aef97dfabe02b4154cfc2d8893c1e_800x.png?v=1754541931"           alt="Sunscreen Toneup" class="h-28 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
+    <img src="https://dalba.com/cdn/shop/files/ver_800x.png?v=1756100655"                                        alt="Double Cream" class="h-28 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
+    <img src="https://dalba.com/cdn/shop/files/3fc5273f019a4a544f8624c267860fc7_800x.png?v=1754541907"           alt="Essence Sunscreen" class="h-28 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
+    <img src="https://dalba.com/cdn/shop/files/d56f6b409060c03edce3fedffb876f03_7291c156-b3bb-4689-ae38-8131a7322ad4_800x.jpg?v=1754542865" alt="Aromatic" class="h-28 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
+    <img src="https://dalba.com/cdn/shop/files/doublecream-thumbnail-1_800x.jpg?v=1756100655"                    alt="Double Cream 2" class="h-28 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity" />
+  </div>
+  <style>
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .marquee-track:hover { animation-play-state: paused; }
+  </style>
+</div>
+
+
+<section id="products" class="py-20 lg:py-28 px-6 bg-white">
+  <div class="max-w-7xl mx-auto">
+
+    <!-- Section heading -->
+    <div class="text-center mb-16">
+      <p class="font-body text-xs font-semibold tracking-[.3em] uppercase text-gold mb-3" data-vi="Bộ Sưu Tập" data-en="Collection">Bộ Sưu Tập</p>
+      <h2 class="font-display text-4xl lg:text-5xl font-light text-charcoal mb-4" data-vi="Sản Phẩm Nổi Bật" data-en="Featured Products">Sản Phẩm Nổi Bật</h2>
+      <span class="gold-line mx-auto"></span>
+    </div>
+
+    <!-- Product grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+      <!-- Product 1: First Spray Serum -->
+      <div class="product-card group rounded-2xl overflow-hidden bg-cream cursor-pointer"
+           data-id="1"
+           data-name-vi="First Spray Serum" data-name-en="First Spray Serum"
+           data-price="650000"
+           data-img="https://dalba.com/cdn/shop/files/100ml_18802f44-6c65-4476-af0b-7a8e86a25e8c_800x.png?v=1754542865">
+        <div class="relative overflow-hidden aspect-[3/4] bg-cream">
+          <img src="https://dalba.com/cdn/shop/files/100ml_18802f44-6c65-4476-af0b-7a8e86a25e8c_800x.png?v=1754542865" alt="First Spray Serum"
+               class="w-full h-full object-contain p-4" />
+          <!-- Hover overlay -->
+          <div class="overlay absolute inset-0 bg-black/20 flex items-end pb-6 justify-center">
+            <button onclick="addToCart(this.closest('[data-id]'))"
+                    class="btn-gold text-white text-sm font-body font-medium px-6 py-2.5 rounded-full">
+              <span data-vi="Thêm vào giỏ" data-en="Add to cart">Thêm vào giỏ</span>
+            </button>
+          </div>
+          <!-- Badge -->
+          <span class="absolute top-3 left-3 bg-charcoal text-white text-xs font-body px-2.5 py-1 rounded-full"
+                data-vi="Bán chạy #1" data-en="Best Seller #1">Bán chạy #1</span>
+        </div>
+        <div class="p-5">
+          <p class="font-body text-xs text-gray-400 mb-1" data-vi="Xịt Khoáng Serum" data-en="Mist Serum">Xịt Khoáng Serum</p>
+          <h3 class="font-display text-xl font-medium text-charcoal mb-3" data-vi="First Spray Serum" data-en="First Spray Serum">First Spray Serum</h3>
+          <div class="flex items-center justify-between">
+            <p class="font-body font-semibold text-charcoal">650.000 ₫</p>
+            <div class="flex gap-0.5">
+              <span class="text-gold text-sm">★★★★★</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product 2: Tone-up Sunscreen -->
+      <div class="product-card group rounded-2xl overflow-hidden bg-cream cursor-pointer"
+           data-id="2"
+           data-name-vi="Kem Chống Nắng Nâng Tông" data-name-en="Tone-up Sunscreen"
+           data-price="520000"
+           data-img="https://dalba.com/cdn/shop/files/b15aef97dfabe02b4154cfc2d8893c1e_800x.png?v=1754541931">
+        <div class="relative overflow-hidden aspect-[3/4] bg-cream">
+          <img src="https://dalba.com/cdn/shop/files/b15aef97dfabe02b4154cfc2d8893c1e_800x.png?v=1754541931" alt="Tone-up Sunscreen"
+               class="w-full h-full object-contain p-4" />
+          <div class="overlay absolute inset-0 bg-black/20 flex items-end pb-6 justify-center">
+            <button onclick="addToCart(this.closest('[data-id]'))"
+                    class="btn-gold text-white text-sm font-body font-medium px-6 py-2.5 rounded-full">
+              <span data-vi="Thêm vào giỏ" data-en="Add to cart">Thêm vào giỏ</span>
+            </button>
+          </div>
+          <span class="absolute top-3 left-3 bg-gold text-white text-xs font-body px-2.5 py-1 rounded-full"
+                data-vi="Mới" data-en="New">Mới</span>
+        </div>
+        <div class="p-5">
+          <p class="font-body text-xs text-gray-400 mb-1" data-vi="Kem Chống Nắng SPF50+" data-en="Sunscreen SPF50+">Kem Chống Nắng SPF50+</p>
+          <h3 class="font-display text-xl font-medium text-charcoal mb-3" data-vi="Kem Chống Nắng Nâng Tông" data-en="Tone-up Sunscreen">Kem Chống Nắng Nâng Tông</h3>
+          <div class="flex items-center justify-between">
+            <p class="font-body font-semibold text-charcoal">520.000 ₫</p>
+            <div class="flex gap-0.5"><span class="text-gold text-sm">★★★★★</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product 3 -->
+      <div class="product-card group rounded-2xl overflow-hidden bg-cream cursor-pointer"
+           data-id="3"
+           data-name-vi="Double Serum & Cream" data-name-en="Double Serum & Cream"
+           data-price="890000"
+           data-img="https://dalba.com/cdn/shop/files/ver_800x.png?v=1756100655">
+        <div class="relative overflow-hidden aspect-[3/4] bg-cream">
+          <img src="https://dalba.com/cdn/shop/files/ver_800x.png?v=1756100655" alt="Double Serum & Cream"
+               class="w-full h-full object-contain p-4" />
+          <div class="overlay absolute inset-0 bg-black/20 flex items-end pb-6 justify-center">
+            <button onclick="addToCart(this.closest('[data-id]'))"
+                    class="btn-gold text-white text-sm font-body font-medium px-6 py-2.5 rounded-full">
+              <span data-vi="Thêm vào giỏ" data-en="Add to cart">Thêm vào giỏ</span>
+            </button>
+          </div>
+        </div>
+        <div class="p-5">
+          <p class="font-body text-xs text-gray-400 mb-1" data-vi="Serum Cao Cấp" data-en="Premium Serum">Serum Cao Cấp</p>
+          <h3 class="font-display text-xl font-medium text-charcoal mb-3" data-vi="Double Serum & Cream" data-en="Double Serum & Cream">Double Serum & Cream</h3>
+          <div class="flex items-center justify-between">
+            <p class="font-body font-semibold text-charcoal">890.000 ₫</p>
+            <div class="flex gap-0.5"><span class="text-gold text-sm">★★★★☆</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product 4 -->
+      <div class="product-card group rounded-2xl overflow-hidden bg-cream cursor-pointer"
+           data-id="4"
+           data-name-vi="Bộ Dưỡng Da Toàn Diện" data-name-en="Complete Skincare Set"
+           data-price="1250000"
+           data-img="https://dalba.com/cdn/shop/files/3fc5273f019a4a544f8624c267860fc7_800x.png?v=1754541907">
+        <div class="relative overflow-hidden aspect-[3/4] bg-cream">
+          <img src="https://dalba.com/cdn/shop/files/3fc5273f019a4a544f8624c267860fc7_800x.png?v=1754541907" alt="Waterfull Essence Sunscreen"
+               class="w-full h-full object-contain p-4" />
+          <div class="overlay absolute inset-0 bg-black/20 flex items-end pb-6 justify-center">
+            <button onclick="addToCart(this.closest('[data-id]'))"
+                    class="btn-gold text-white text-sm font-body font-medium px-6 py-2.5 rounded-full">
+              <span data-vi="Thêm vào giỏ" data-en="Add to cart">Thêm vào giỏ</span>
+            </button>
+          </div>
+          <span class="absolute top-3 left-3 bg-red-500 text-white text-xs font-body px-2.5 py-1 rounded-full"
+                data-vi="-15%" data-en="-15%">-15%</span>
+        </div>
+        <div class="p-5">
+          <p class="font-body text-xs text-gray-400 mb-1" data-vi="Kem Chống Nắng SPF50+" data-en="Sunscreen SPF50+">Kem Chống Nắng SPF50+</p>
+          <h3 class="font-display text-xl font-medium text-charcoal mb-3" data-vi="Waterfull Essence Sunscreen" data-en="Waterfull Essence Sunscreen">Waterfull Essence Sunscreen</h3>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-body font-semibold text-charcoal">1.250.000 ₫</p>
+              <p class="font-body text-xs text-gray-400 line-through">1.470.000 ₫</p>
+            </div>
+            <div class="flex gap-0.5"><span class="text-gold text-sm">★★★★★</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product 5: Aromatic Spray Serum -->
+      <div class="product-card group rounded-2xl overflow-hidden bg-cream cursor-pointer"
+           data-id="5"
+           data-name-vi="Aromatic Spray Serum" data-name-en="Aromatic Spray Serum"
+           data-price="720000"
+           data-img="https://dalba.com/cdn/shop/files/d56f6b409060c03edce3fedffb876f03_7291c156-b3bb-4689-ae38-8131a7322ad4_800x.jpg?v=1754542865">
+        <div class="relative overflow-hidden aspect-[3/4] bg-cream">
+          <img src="https://dalba.com/cdn/shop/files/d56f6b409060c03edce3fedffb876f03_7291c156-b3bb-4689-ae38-8131a7322ad4_800x.jpg?v=1754542865"
+               alt="Aromatic Spray Serum"
+               class="w-full h-full object-contain p-4" />
+          <div class="overlay absolute inset-0 bg-black/20 flex items-end pb-6 justify-center">
+            <button onclick="addToCart(this.closest('[data-id]'))"
+                    class="btn-gold text-white text-sm font-body font-medium px-6 py-2.5 rounded-full">
+              <span data-vi="Thêm vào giỏ" data-en="Add to cart">Thêm vào giỏ</span>
+            </button>
+          </div>
+          <span class="absolute top-3 left-3 bg-charcoal text-white text-xs font-body px-2.5 py-1 rounded-full"
+                data-vi="Phục Hồi" data-en="Nourishing">Phục Hồi</span>
+        </div>
+        <div class="p-5">
+          <p class="font-body text-xs text-gray-400 mb-1" data-vi="Xịt Khoáng Cao Cấp" data-en="Premium Mist">Xịt Khoáng Cao Cấp</p>
+          <h3 class="font-display text-xl font-medium text-charcoal mb-3" data-vi="Aromatic Spray Serum" data-en="Aromatic Spray Serum">Aromatic Spray Serum</h3>
+          <div class="flex items-center justify-between">
+            <p class="font-body font-semibold text-charcoal">720.000 ₫</p>
+            <div class="flex gap-0.5"><span class="text-gold text-sm">★★★★★</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product 6: Serum Toner -->
+      <div class="product-card group rounded-2xl overflow-hidden bg-cream cursor-pointer"
+           data-id="6"
+           data-name-vi="Vita Toning Serum Toner" data-name-en="Vita Toning Serum Toner"
+           data-price="480000"
+           data-img="https://dalba.com/cdn/shop/files/PC2_c2b0f386-ab9d-4265-8d63-536aab031018_800x.png?v=1754542865">
+        <div class="relative overflow-hidden aspect-[3/4] bg-cream">
+          <img src="https://dalba.com/cdn/shop/files/PC2_c2b0f386-ab9d-4265-8d63-536aab031018_800x.png?v=1754542865"
+               alt="Vita Toning Serum Toner"
+               class="w-full h-full object-cover" />
+          <div class="overlay absolute inset-0 bg-black/20 flex items-end pb-6 justify-center">
+            <button onclick="addToCart(this.closest('[data-id]'))"
+                    class="btn-gold text-white text-sm font-body font-medium px-6 py-2.5 rounded-full">
+              <span data-vi="Thêm vào giỏ" data-en="Add to cart">Thêm vào giỏ</span>
+            </button>
+          </div>
+        </div>
+        <div class="p-5">
+          <p class="font-body text-xs text-gray-400 mb-1" data-vi="Toner · Serum" data-en="Toner · Serum">Toner · Serum</p>
+          <h3 class="font-display text-xl font-medium text-charcoal mb-3" data-vi="Vita Toning Serum Toner" data-en="Vita Toning Serum Toner">Vita Toning Serum Toner</h3>
+          <div class="flex items-center justify-between">
+            <p class="font-body font-semibold text-charcoal">480.000 ₫</p>
+            <div class="flex gap-0.5"><span class="text-gold text-sm">★★★★☆</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product 7: Double Serum Detail -->
+      <div class="product-card group rounded-2xl overflow-hidden bg-cream cursor-pointer"
+           data-id="7"
+           data-name-vi="Double Cream Aqua Serum" data-name-en="Double Cream Aqua Serum"
+           data-price="960000"
+           data-img="https://dalba.com/cdn/shop/files/doublecream-thumbnail-1_800x.jpg?v=1756100655">
+        <div class="relative overflow-hidden aspect-[3/4] bg-cream">
+          <img src="https://dalba.com/cdn/shop/files/doublecream-thumbnail-1_800x.jpg?v=1756100655"
+               alt="Double Cream Aqua Serum"
+               class="w-full h-full object-cover" />
+          <div class="overlay absolute inset-0 bg-black/20 flex items-end pb-6 justify-center">
+            <button onclick="addToCart(this.closest('[data-id]'))"
+                    class="btn-gold text-white text-sm font-body font-medium px-6 py-2.5 rounded-full">
+              <span data-vi="Thêm vào giỏ" data-en="Add to cart">Thêm vào giỏ</span>
+            </button>
+          </div>
+          <span class="absolute top-3 left-3 bg-gold text-white text-xs font-body px-2.5 py-1 rounded-full"
+                data-vi="Hot" data-en="Hot">Hot</span>
+        </div>
+        <div class="p-5">
+          <p class="font-body text-xs text-gray-400 mb-1" data-vi="Kem Dưỡng 2-in-1" data-en="2-in-1 Cream">Kem Dưỡng 2-in-1</p>
+          <h3 class="font-display text-xl font-medium text-charcoal mb-3" data-vi="Double Cream Aqua Serum" data-en="Double Cream Aqua Serum">Double Cream Aqua Serum</h3>
+          <div class="flex items-center justify-between">
+            <p class="font-body font-semibold text-charcoal">960.000 ₫</p>
+            <div class="flex gap-0.5"><span class="text-gold text-sm">★★★★★</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product 8: Essence Sunscreen Lifestyle -->
+      <div class="product-card group rounded-2xl overflow-hidden bg-cream cursor-pointer"
+           data-id="8"
+           data-name-vi="Waterfull Mild Sunscreen" data-name-en="Waterfull Mild Sunscreen"
+           data-price="490000"
+           data-img="https://dalba.com/cdn/shop/files/PC1_3901a8b5-6d4f-4e4f-a0ab-4d0b9374e1e7_800x.png?v=1754541907">
+        <div class="relative overflow-hidden aspect-[3/4] bg-cream">
+          <img src="https://dalba.com/cdn/shop/files/PC1_3901a8b5-6d4f-4e4f-a0ab-4d0b9374e1e7_800x.png?v=1754541907"
+               alt="Waterfull Mild Sunscreen"
+               class="w-full h-full object-cover" />
+          <div class="overlay absolute inset-0 bg-black/20 flex items-end pb-6 justify-center">
+            <button onclick="addToCart(this.closest('[data-id]'))"
+                    class="btn-gold text-white text-sm font-body font-medium px-6 py-2.5 rounded-full">
+              <span data-vi="Thêm vào giỏ" data-en="Add to cart">Thêm vào giỏ</span>
+            </button>
+          </div>
+          <span class="absolute top-3 left-3 bg-green-600 text-white text-xs font-body px-2.5 py-1 rounded-full"
+                data-vi="Da Nhạy Cảm" data-en="Sensitive">Da Nhạy Cảm</span>
+        </div>
+        <div class="p-5">
+          <p class="font-body text-xs text-gray-400 mb-1" data-vi="Kem Chống Nắng Dịu Nhẹ" data-en="Mild Sunscreen">Kem Chống Nắng Dịu Nhẹ</p>
+          <h3 class="font-display text-xl font-medium text-charcoal mb-3" data-vi="Waterfull Mild Sunscreen" data-en="Waterfull Mild Sunscreen">Waterfull Mild Sunscreen</h3>
+          <div class="flex items-center justify-between">
+            <p class="font-body font-semibold text-charcoal">490.000 ₫</p>
+            <div class="flex gap-0.5"><span class="text-gold text-sm">★★★★★</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /grid -->
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     BRAND STORY
+══════════════════════════════════════════ -->
+<section id="story" class="py-20 lg:py-28 px-6 bg-cream overflow-hidden">
+  <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+    <!-- Image -->
+    <div class="story-img-frame relative">
+      <img src="https://dalba.com/cdn/shop/files/PC1_e21401ba-8e19-47cf-8d41-87d18c1646e5_800x.png?v=1754542865"
+           alt="d'Alba White Truffle Brand Story"
+           class="relative z-10 w-full h-80 lg:h-[480px] object-cover rounded-2xl" />
+    </div>
+
+    <!-- Text -->
+    <div>
+      <p class="font-body text-xs font-semibold tracking-[.3em] uppercase text-gold mb-4" data-vi="Câu Chuyện Thương Hiệu" data-en="Brand Heritage">Câu Chuyện Thương Hiệu</p>
+      <h2 class="font-display text-4xl lg:text-5xl font-light text-charcoal leading-tight mb-6"
+          data-vi="Từ Vùng Đất Piedmont Đến Làn Da Của Bạn"
+          data-en="From Piedmont Hills To Your Skin">
+        Từ Vùng Đất Piedmont<br/><em class="italic">Đến Làn Da Của Bạn</em>
+      </h2>
+      <span class="gold-line mb-6 block"></span>
+      <p class="font-body text-base text-gray-500 leading-relaxed mb-5"
+         data-vi="Được thành lập năm 2016, HappyShop ra đời với nguồn cảm hứng từ những cánh đồng nấm Truffle trắng quý hiếm tại Alba, vùng Piedmont nước Ý — loài nấm được mệnh danh là 'kim cương trong lòng đất'."
+         data-en="Founded in 2016, HappyShop draws inspiration from the rare white truffle fields of Alba, Piedmont, Italy — nature's treasure known as the 'diamond of the earth'.">
+        Được thành lập năm 2016, HappyShop ra đời với nguồn cảm hứng từ những cánh đồng nấm Truffle trắng quý hiếm tại Alba, vùng Piedmont nước Ý — loài nấm được mệnh danh là 'kim cương trong lòng đất'.
+      </p>
+      <p class="font-body text-base text-gray-500 leading-relaxed mb-8"
+         data-vi="Toàn bộ sản phẩm của chúng tôi đều được chứng nhận Vegan bởi Hiệp hội Thuần Chay Châu Âu (EVU), cam kết không thành phần từ động vật, không paraben, không sulfate."
+         data-en="All our products are certified Vegan by the European Vegetarian Union (EVU), guaranteeing no animal ingredients, no parabens, no sulfates.">
+        Toàn bộ sản phẩm của chúng tôi đều được chứng nhận Vegan bởi Hiệp hội Thuần Chay Châu Âu (EVU), cam kết không thành phần từ động vật, không paraben, không sulfate.
+      </p>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="text-center p-4 bg-white rounded-xl">
+          <p class="font-display text-3xl font-light text-gold">50M+</p>
+          <p class="font-body text-xs text-gray-400 mt-1" data-vi="Sản phẩm bán ra" data-en="Units sold">Sản phẩm bán ra</p>
+        </div>
+        <div class="text-center p-4 bg-white rounded-xl">
+          <p class="font-display text-3xl font-light text-gold">60+</p>
+          <p class="font-body text-xs text-gray-400 mt-1" data-vi="Quốc gia" data-en="Countries">Quốc gia</p>
+        </div>
+        <div class="text-center p-4 bg-white rounded-xl">
+          <p class="font-display text-3xl font-light text-gold">100%</p>
+          <p class="font-body text-xs text-gray-400 mt-1" data-vi="Thuần Chay" data-en="Vegan">Thuần Chay</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer class="bg-charcoal text-white py-16 px-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+
+      <!-- Brand -->
+      <div class="md:col-span-1">
+        <div class="flex items-center gap-3 mb-5">
+          <img src="logo.png" alt="HappyShop" class="h-9 w-auto brightness-0 invert"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='block'" />
+          <span class="font-display text-2xl font-semibold hidden">HappyShop</span>
+        </div>
+        <p class="font-body text-sm text-gray-400 leading-relaxed mb-5"
+           data-vi="Mỹ phẩm thuần chay cao cấp, lấy cảm hứng từ thiên nhiên Ý. Dưỡng ẩm, chống lão hóa và bảo vệ làn da từ sâu bên trong."
+           data-en="Premium vegan skincare inspired by Italian nature. Hydration, anti-aging and skin protection from within.">
+          Mỹ phẩm thuần chay cao cấp, lấy cảm hứng từ thiên nhiên Ý.
+        </p>
+        <!-- Social icons -->
+        <div class="flex gap-3">
+          <a href="#" class="w-9 h-9 rounded-full border border-gray-700 flex items-center justify-center hover:border-gold hover:text-gold transition-colors" aria-label="Facebook">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          </a>
+          <a href="#" class="w-9 h-9 rounded-full border border-gray-700 flex items-center justify-center hover:border-gold hover:text-gold transition-colors" aria-label="Instagram">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="#" class="w-9 h-9 rounded-full border border-gray-700 flex items-center justify-center hover:border-gold hover:text-gold transition-colors" aria-label="TikTok">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.29 6.29 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.19 8.19 0 004.79 1.52V6.75a4.85 4.85 0 01-1.02-.06z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick links -->
+      <div>
+        <h4 class="font-body font-semibold text-sm uppercase tracking-widest mb-5 text-gold" data-vi="Liên Kết Nhanh" data-en="Quick Links">Liên Kết Nhanh</h4>
+        <ul class="space-y-3 font-body text-sm text-gray-400">
+          <li><a href="#" class="hover:text-gold transition-colors" data-vi="Trang Chủ" data-en="Home">Trang Chủ</a></li>
+          <li><a href="#products" class="hover:text-gold transition-colors" data-vi="Sản Phẩm" data-en="Products">Sản Phẩm</a></li>
+          <li><a href="#story" class="hover:text-gold transition-colors" data-vi="Thương Hiệu" data-en="Brand Story">Thương Hiệu</a></li>
+        </ul>
+      </div>
+
+      <!-- Policies -->
+      <div>
+        <h4 class="font-body font-semibold text-sm uppercase tracking-widest mb-5 text-gold" data-vi="Chính Sách" data-en="Policies">Chính Sách</h4>
+        <ul class="space-y-3 font-body text-sm text-gray-400">
+          <li><a href="#" class="hover:text-gold transition-colors" data-vi="Chính Sách Đổi Trả" data-en="Return Policy">Chính Sách Đổi Trả</a></li>
+          <li><a href="#" class="hover:text-gold transition-colors" data-vi="Chính Sách Bảo Mật" data-en="Privacy Policy">Chính Sách Bảo Mật</a></li>
+          <li><a href="#" class="hover:text-gold transition-colors" data-vi="Điều Khoản Dịch Vụ" data-en="Terms of Service">Điều Khoản Dịch Vụ</a></li>
+          <li><a href="#" class="hover:text-gold transition-colors" data-vi="Hướng Dẫn Mua Hàng" data-en="Buying Guide">Hướng Dẫn Mua Hàng</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <h4 class="font-body font-semibold text-sm uppercase tracking-widest mb-5 text-gold" data-vi="Liên Hệ" data-en="Contact">Liên Hệ</h4>
+        <ul class="space-y-3 font-body text-sm text-gray-400">
+          <li class="flex items-start gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="1.8" class="mt-0.5 flex-shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span data-vi="123 Đường Nguyễn Huệ, Q.1, TP.HCM" data-en="123 Nguyen Hue St, Dist 1, HCMC">123 Đường Nguyễn Huệ, Q.1, TP.HCM</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            <span>1800 6868</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span>hello@happyshop.vn</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+      <p class="font-body text-xs text-gray-500" data-vi="© 2025 HappyShop. Tất cả quyền được bảo lưu." data-en="© 2025 HappyShop. All rights reserved.">© 2025 HappyShop. Tất cả quyền được bảo lưu.</p>
+      <!-- Payment icons -->
+      <div class="flex items-center gap-3">
+        <span class="font-body text-xs text-gray-600" data-vi="Thanh toán qua:" data-en="We accept:">Thanh toán qua:</span>
+        <img src="payment-visa.png" alt="Visa" class="h-7 opacity-60 hover:opacity-100 transition-opacity"
+             onerror="this.outerHTML='<span class=\'font-body text-xs bg-blue-800 text-white px-2 py-1 rounded\'>VISA</span>'" />
+        <img src="payment-momo.png" alt="MoMo" class="h-7 opacity-60 hover:opacity-100 transition-opacity"
+             onerror="this.outerHTML='<span class=\'font-body text-xs bg-pink-600 text-white px-2 py-1 rounded\'>MoMo</span>'" />
+        <div class="h-7 px-2 bg-gray-800 rounded flex items-center">
+          <span class="font-body text-xs text-gray-300">COD</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ══════════════════════════════════════════
+     CART SIDEBAR
+══════════════════════════════════════════ -->
+<div id="cart-overlay" onclick="closeCart()"></div>
+<aside id="cart-sidebar">
+  <!-- Header -->
+  <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+    <h2 class="font-display text-2xl font-light" data-vi="Giỏ Hàng" data-en="Shopping Cart">Giỏ Hàng</h2>
+    <button onclick="closeCart()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Close">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <!-- Cart items -->
+  <div id="cart-items" class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+    <!-- Populated by JS -->
+    <div id="cart-empty" class="flex flex-col items-center justify-center h-48 text-center">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.4"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <p class="font-body text-sm text-gray-400 mt-4" data-vi="Giỏ hàng đang trống" data-en="Your cart is empty">Giỏ hàng đang trống</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="px-6 py-5 border-t border-gray-100 bg-white">
+    <div class="flex justify-between items-center mb-4">
+      <span class="font-body text-sm font-medium" data-vi="Tổng cộng" data-en="Total">Tổng cộng</span>
+      <span id="cart-total" class="font-display text-2xl font-light text-charcoal">0 ₫</span>
+    </div>
+    <button onclick="openCheckout()" class="btn-gold w-full text-white py-3.5 rounded-full font-body font-medium text-sm tracking-wide mb-3"
+            data-vi="Thanh Toán Ngay" data-en="Checkout">Thanh Toán Ngay</button>
+    <button onclick="closeCart()" class="w-full py-3 rounded-full border border-gray-200 font-body text-sm text-gray-500 hover:border-gray-400 transition-colors"
+            data-vi="Tiếp Tục Mua Hàng" data-en="Continue Shopping">Tiếp Tục Mua Hàng</button>
+  </div>
+</aside>
+
+
+<!-- ══════════════════════════════════════════
+     CHECKOUT MODAL
+══════════════════════════════════════════ -->
+<div id="checkout-modal">
+  <div class="checkout-box">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="font-display text-3xl font-light" data-vi="Thanh Toán" data-en="Checkout">Thanh Toán</h2>
+      <button onclick="closeCheckout()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Delivery info form -->
+    <div class="mb-8">
+      <p class="font-body text-xs font-semibold tracking-widest uppercase text-gold mb-5" data-vi="Thông Tin Giao Hàng" data-en="Delivery Information">Thông Tin Giao Hàng</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="font-body text-xs text-gray-500 block mb-1.5" data-vi="Họ và tên *" data-en="Full name *">Họ và tên *</label>
+          <input type="text" placeholder="" class="w-full border border-gray-200 rounded-xl px-4 py-3 font-body text-sm outline-none transition-all" />
+        </div>
+        <div>
+          <label class="font-body text-xs text-gray-500 block mb-1.5" data-vi="Số điện thoại *" data-en="Phone number *">Số điện thoại *</label>
+          <input type="tel" placeholder="" class="w-full border border-gray-200 rounded-xl px-4 py-3 font-body text-sm outline-none transition-all" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="font-body text-xs text-gray-500 block mb-1.5" data-vi="Email" data-en="Email">Email</label>
+          <input type="email" placeholder="" class="w-full border border-gray-200 rounded-xl px-4 py-3 font-body text-sm outline-none transition-all" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="font-body text-xs text-gray-500 block mb-1.5" data-vi="Địa chỉ giao hàng *" data-en="Delivery address *">Địa chỉ giao hàng *</label>
+          <input type="text" class="w-full border border-gray-200 rounded-xl px-4 py-3 font-body text-sm outline-none transition-all" />
+        </div>
+        <div>
+          <label class="font-body text-xs text-gray-500 block mb-1.5" data-vi="Tỉnh / Thành phố *" data-en="Province / City *">Tỉnh / Thành phố *</label>
+          <select class="w-full border border-gray-200 rounded-xl px-4 py-3 font-body text-sm outline-none transition-all bg-white appearance-none">
+            <option data-vi="Chọn tỉnh thành..." data-en="Select city...">Chọn tỉnh thành...</option>
+            <option>TP. Hồ Chí Minh</option>
+            <option>Hà Nội</option>
+            <option>Đà Nẵng</option>
+            <option>Cần Thơ</option>
+          </select>
+        </div>
+        <div>
+          <label class="font-body text-xs text-gray-500 block mb-1.5" data-vi="Ghi chú đơn hàng" data-en="Order note">Ghi chú đơn hàng</label>
+          <input type="text" class="w-full border border-gray-200 rounded-xl px-4 py-3 font-body text-sm outline-none transition-all" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment method -->
+    <div class="mb-8">
+      <p class="font-body text-xs font-semibold tracking-widest uppercase text-gold mb-5" data-vi="Phương Thức Thanh Toán" data-en="Payment Method">Phương Thức Thanh Toán</p>
+      <div class="grid grid-cols-2 gap-3">
+
+        <!-- Credit card -->
+        <div class="pay-option selected p-4 flex items-center gap-3" onclick="selectPayment(this)">
+          <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
+          <div>
+            <p class="font-body text-sm font-medium" data-vi="Thẻ tín dụng" data-en="Credit Card">Thẻ tín dụng</p>
+            <p class="font-body text-xs text-gray-400">Visa / Mastercard</p>
+          </div>
+        </div>
+
+        <!-- Bank transfer -->
+        <div class="pay-option p-4 flex items-center gap-3" onclick="selectPayment(this)">
+          <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.8"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+          </div>
+          <div>
+            <p class="font-body text-sm font-medium" data-vi="Chuyển khoản" data-en="Bank Transfer">Chuyển khoản</p>
+            <p class="font-body text-xs text-gray-400" data-vi="Internet Banking" data-en="Internet Banking">Internet Banking</p>
+          </div>
+        </div>
+
+        <!-- MoMo -->
+        <div class="pay-option p-4 flex items-center gap-3" onclick="selectPayment(this)">
+          <div class="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center flex-shrink-0">
+            <img src="payment-momo.png" alt="MoMo" class="w-7 h-7 object-contain"
+                 onerror="this.outerHTML='<span class=\'text-pink-600 font-bold text-xs\'>Mo</span>'" />
+          </div>
+          <div>
+            <p class="font-body text-sm font-medium">MoMo</p>
+            <p class="font-body text-xs text-gray-400" data-vi="Ví điện tử" data-en="E-Wallet">Ví điện tử</p>
+          </div>
+        </div>
+
+        <!-- COD -->
+        <div class="pay-option p-4 flex items-center gap-3" onclick="selectPayment(this)">
+          <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <div>
+            <p class="font-body text-sm font-medium">COD</p>
+            <p class="font-body text-xs text-gray-400" data-vi="Tiền mặt khi nhận hàng" data-en="Cash on Delivery">Tiền mặt khi nhận hàng</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order summary -->
+    <div class="bg-cream rounded-2xl p-5 mb-6">
+      <p class="font-body text-xs font-semibold tracking-widest uppercase text-gold mb-4" data-vi="Tóm Tắt Đơn Hàng" data-en="Order Summary">Tóm Tắt Đơn Hàng</p>
+      <div id="checkout-summary" class="space-y-2 mb-4 font-body text-sm text-gray-600"></div>
+      <div class="border-t border-gray-200 pt-4 flex justify-between">
+        <span class="font-body text-sm font-semibold" data-vi="Tổng thanh toán" data-en="Total">Tổng thanh toán</span>
+        <span id="checkout-total" class="font-display text-xl font-light text-charcoal">0 ₫</span>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <button onclick="submitOrder()"
+            class="btn-gold w-full text-white py-4 rounded-full font-body font-semibold tracking-wide"
+            data-vi="Xác Nhận Đặt Hàng" data-en="Place Order">Xác Nhận Đặt Hàng</button>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div id="toast">
+  <span id="toast-text">✔ Đã thêm vào giỏ hàng</span>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════ -->
+<script>
+/* ─────────────────────────────────────────
+   STATE
+───────────────────────────────────────── */
+let currentLang = 'vi';
+let cart = []; // [{id, name, price, img, qty}]
+let currentSlide = 0;
+const totalSlides = 3;
+let slideInterval;
+
+/* ─────────────────────────────────────────
+   LANGUAGE SYSTEM
+───────────────────────────────────────── */
+function setLang(lang) {
+  currentLang = lang;
+
+  // Toggle button styles
+  document.getElementById('btn-vi').classList.toggle('active', lang === 'vi');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+
+  // Update all elements with data-vi / data-en attributes
+  document.querySelectorAll('[data-vi]').forEach(el => {
+    const key = lang === 'vi' ? 'vi' : 'en';
+    if (el.dataset[key]) el.textContent = el.dataset[key];
+  });
+
+  // Update placeholders (input)
+  document.querySelectorAll('[data-placeholder-vi]').forEach(el => {
+    el.placeholder = lang === 'vi' ? el.dataset.placeholderVi : el.dataset.placeholderEn;
+  });
+}
+
+/* ─────────────────────────────────────────
+   HERO SLIDER
+───────────────────────────────────────── */
+function showSlide(index) {
+  const slides = document.querySelectorAll('.slide');
+  const dots   = document.querySelectorAll('.dot');
+  slides.forEach((s, i) => { s.classList.toggle('active', i === index); });
+  dots.forEach((d, i)  => { d.classList.toggle('active', i === index); });
+  currentSlide = index;
+}
+
+function nextSlide() {
+  showSlide((currentSlide + 1) % totalSlides);
+  resetInterval();
+}
+
+function prevSlide() {
+  showSlide((currentSlide - 1 + totalSlides) % totalSlides);
+  resetInterval();
+}
+
+function goToSlide(i) {
+  showSlide(i);
+  resetInterval();
+}
+
+function resetInterval() {
+  clearInterval(slideInterval);
+  slideInterval = setInterval(nextSlide, 5000);
+}
+
+// Auto-advance
+slideInterval = setInterval(nextSlide, 5000);
+
+/* ─────────────────────────────────────────
+   CART MANAGEMENT
+───────────────────────────────────────── */
+function addToCart(cardEl) {
+  const id    = cardEl.dataset.id;
+  const name  = currentLang === 'vi' ? cardEl.dataset.nameVi : cardEl.dataset.nameEn;
+  const price = parseInt(cardEl.dataset.price);
+  const img   = cardEl.dataset.img;
+
+  const existing = cart.find(i => i.id === id);
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({ id, name, price, img, qty: 1 });
+  }
+
+  renderCart();
+  showToast(currentLang === 'vi' ? `✔ Đã thêm <strong>${name}</strong> vào giỏ` : `✔ Added <strong>${name}</strong> to cart`);
+  updateCartCount();
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(i => i.id !== id);
+  renderCart();
+  updateCartCount();
+}
+
+function changeQty(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  item.qty = Math.max(1, item.qty + delta);
+  renderCart();
+  updateCartCount();
+}
+
+function renderCart() {
+  const container = document.getElementById('cart-items');
+  const empty     = document.getElementById('cart-empty');
+  const totalEl   = document.getElementById('cart-total');
+
+  // Clear existing item nodes (keep empty placeholder)
+  container.querySelectorAll('.cart-item').forEach(n => n.remove());
+
+  let total = 0;
+
+  if (cart.length === 0) {
+    empty.style.display = 'flex';
+    totalEl.textContent = '0 ₫';
+    return;
+  }
+
+  empty.style.display = 'none';
+
+  cart.forEach(item => {
+    total += item.price * item.qty;
+    const div = document.createElement('div');
+    div.className = 'cart-item flex items-center gap-4 py-3 border-b border-gray-50';
+    div.innerHTML = `
+      <div class="w-16 h-16 rounded-xl bg-cream overflow-hidden flex-shrink-0">
+        <img src="${item.img}" alt="${item.name}" class="w-full h-full object-cover"
+             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'64\' height=\'64\' viewBox=\'0 0 64 64\'%3E%3Crect width=\'64\' height=\'64\' fill=\'%23f9f3e3\'/%3E%3Ccircle cx=\'32\' cy=\'32\' r=\'14\' fill=\'%23D4AF37\' opacity=\'.3\'/%3E%3C/svg%3E'" />
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-body text-sm font-medium text-charcoal truncate">${item.name}</p>
+        <p class="font-body text-sm text-gold font-semibold mt-0.5">${formatPrice(item.price)}</p>
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <button onclick="changeQty('${item.id}', -1)" class="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center hover:border-gold transition-colors text-sm font-semibold">−</button>
+        <span class="font-body text-sm w-5 text-center">${item.qty}</span>
+        <button onclick="changeQty('${item.id}', 1)" class="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center hover:border-gold transition-colors text-sm font-semibold">+</button>
+        <button onclick="removeFromCart('${item.id}')" class="w-7 h-7 rounded-full hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors ml-1" aria-label="Remove">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>`;
+    container.insertBefore(div, empty);
+  });
+
+  totalEl.textContent = formatPrice(total);
+}
+
+function updateCartCount() {
+  const count = cart.reduce((sum, i) => sum + i.qty, 0);
+  const badge = document.getElementById('cart-count');
+  badge.textContent  = count;
+  badge.style.display = count > 0 ? 'flex' : 'none';
+}
+
+function formatPrice(n) {
+  return n.toLocaleString('vi-VN') + ' ₫';
+}
+
+/* ─────────────────────────────────────────
+   CART SIDEBAR OPEN / CLOSE
+───────────────────────────────────────── */
+function openCart() {
+  document.getElementById('cart-sidebar').classList.add('open');
+  document.getElementById('cart-overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCart() {
+  document.getElementById('cart-sidebar').classList.remove('open');
+  document.getElementById('cart-overlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+/* ─────────────────────────────────────────
+   CHECKOUT MODAL
+───────────────────────────────────────── */
+function openCheckout() {
+  if (cart.length === 0) return;
+  closeCart();
+
+  // Populate summary
+  const summaryEl  = document.getElementById('checkout-summary');
+  const checkoutTotal = document.getElementById('checkout-total');
+  summaryEl.innerHTML = '';
+  let total = 0;
+
+  cart.forEach(item => {
+    total += item.price * item.qty;
+    const row = document.createElement('div');
+    row.className = 'flex justify-between items-center';
+    row.innerHTML = `<span>${item.name} × ${item.qty}</span><span class="font-medium">${formatPrice(item.price * item.qty)}</span>`;
+    summaryEl.appendChild(row);
+  });
+
+  // Shipping row
+  const shipping = document.createElement('div');
+  shipping.className = 'flex justify-between text-green-600';
+  shipping.innerHTML = `<span>${currentLang === 'vi' ? 'Phí vận chuyển' : 'Shipping'}</span><span>${currentLang === 'vi' ? 'Miễn phí' : 'Free'}</span>`;
+  summaryEl.appendChild(shipping);
+
+  checkoutTotal.textContent = formatPrice(total);
+
+  document.getElementById('checkout-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCheckout() {
+  document.getElementById('checkout-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function submitOrder() {
+  // Simple validation
+  const inputs = document.querySelectorAll('#checkout-modal input[type="text"], #checkout-modal input[type="tel"]');
+  let valid = true;
+  inputs.forEach(input => {
+    if (!input.value.trim() && input.closest('div').querySelector('label')?.textContent.includes('*')) {
+      input.style.borderColor = '#ef4444';
+      valid = false;
+    } else {
+      input.style.borderColor = '';
+    }
+  });
+
+  if (!valid) return;
+
+  closeCheckout();
+  cart = [];
+  renderCart();
+  updateCartCount();
+
+  showToast(currentLang === 'vi'
+    ? '🎉 Đặt hàng thành công! Chúng tôi sẽ liên hệ sớm.'
+    : '🎉 Order placed! We\'ll contact you shortly.');
+}
+
+/* ─────────────────────────────────────────
+   PAYMENT METHOD SELECTOR
+───────────────────────────────────────── */
+function selectPayment(el) {
+  document.querySelectorAll('.pay-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+/* ─────────────────────────────────────────
+   TOAST NOTIFICATION
+───────────────────────────────────────── */
+let toastTimer;
+function showToast(html) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-text').innerHTML = html;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+/* ─────────────────────────────────────────
+   MOBILE MENU
+───────────────────────────────────────── */
+function toggleMobileMenu() {
+  document.getElementById('mobile-menu').classList.toggle('open');
+}
+
+/* ─────────────────────────────────────────
+   STICKY HEADER
+───────────────────────────────────────── */
+window.addEventListener('scroll', () => {
+  document.getElementById('main-header').classList.toggle('scrolled', window.scrollY > 60);
+});
+
+/* ─────────────────────────────────────────
+   CLOSE CHECKOUT ON BACKDROP CLICK
+───────────────────────────────────────── */
+document.getElementById('checkout-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeCheckout();
+});
+
+/* ─────────────────────────────────────────
+   INITIAL RENDER
+───────────────────────────────────────── */
+renderCart();
+</script>
+</body>
+</html>
